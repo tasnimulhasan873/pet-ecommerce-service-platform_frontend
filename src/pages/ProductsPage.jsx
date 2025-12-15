@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faStar,
@@ -15,6 +15,8 @@ import { getAllProducts } from "../api/productsAPI";
 
 const ProductsPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const { addToCart } = useContext(CartContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,10 +66,28 @@ const ProductsPage = () => {
 
   const categories = ["all", "dog", "cat", "rabbit", "fish", "bird"];
 
-  const filteredProducts =
-    selectedCategory === "all"
-      ? products
-      : products.filter((product) => product.tags.includes(selectedCategory));
+  // Filter products by search query and category
+  const filteredProducts = products.filter((product) => {
+    // Category filter
+    const categoryMatch =
+      selectedCategory === "all" || product.tags.includes(selectedCategory);
+
+    // Search filter
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      const nameMatch = product.name?.toLowerCase().includes(lowerQuery);
+      const descMatch = product.description?.toLowerCase().includes(lowerQuery);
+      const brandMatch = product.brand?.toLowerCase().includes(lowerQuery);
+      const tagsMatch = product.tags?.some((tag) =>
+        tag.toLowerCase().includes(lowerQuery)
+      );
+      return (
+        categoryMatch && (nameMatch || descMatch || brandMatch || tagsMatch)
+      );
+    }
+
+    return categoryMatch;
+  });
 
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -85,11 +105,16 @@ const ProductsPage = () => {
             </span>
           </div>
           <h1 className="text-5xl font-extrabold text-[#002A48] mb-6">
-            Our Product Collection
+            {searchQuery
+              ? `Search Results for "${searchQuery}"`
+              : "Our Product Collection"}
           </h1>
           <p className="text-xl text-[#555] max-w-3xl mx-auto leading-relaxed">
-            Discover our amazing collection of premium pet products designed to
-            keep your furry, feathered, and finned friends happy and healthy.
+            {searchQuery
+              ? `Found ${filteredProducts.length} ${
+                  filteredProducts.length === 1 ? "product" : "products"
+                } matching your search`
+              : "Discover our amazing collection of premium pet products designed to keep your furry, feathered, and finned friends happy and healthy."}
           </p>
         </div>
 
