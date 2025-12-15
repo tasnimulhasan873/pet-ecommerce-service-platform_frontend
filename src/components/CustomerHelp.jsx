@@ -173,7 +173,7 @@ const CustomerHelp = ({ isOpen, onClose }) => {
                 <div>
                   <p className="text-xs text-gray-600 font-semibold">Call Us</p>
                   <p className="text-sm font-bold text-[#002A48]">
-                    +880 1234-567890
+                    +880 1792-987100
                   </p>
                 </div>
               </div>
@@ -250,20 +250,7 @@ const CustomerHelp = ({ isOpen, onClose }) => {
             <p className="text-blue-100 mb-4">
               Our support team is available Monday to Friday, 9:00 AM - 6:00 PM
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="mailto:support@puchito.com"
-                className="bg-[#FFB84C] text-[#002A48] px-6 py-3 rounded-full font-semibold hover:bg-[#FFA500] transition-colors"
-              >
-                Send Email
-              </a>
-              <a
-                href="tel:+8801234567890"
-                className="bg-white text-[#002A48] px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Call Now
-              </a>
-            </div>
+           
           </div>
         </div>
 
