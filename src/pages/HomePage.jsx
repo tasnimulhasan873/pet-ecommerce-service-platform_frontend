@@ -1,7 +1,6 @@
 import HeroBanner from "../components/HeroBanner";
 import ProductSection from "../components/ProductSection";
 import ServiceBooking from "../components/ServiceBooking";
-import RewardsBanner from "../components/RewardsBanner";
 import CommunitySection from "../components/CommunitySection";
 import Footer from "../components/Footer";
 
@@ -12,7 +11,6 @@ const HomePage = () => {
         <HeroBanner />
         <ProductSection />
         <ServiceBooking />
-        <RewardsBanner />
         <CommunitySection />
       </main>
       <Footer />
