@@ -1,0 +1,123 @@
+[
+  {
+    "petFoodTitle": "Royal Canin Puppy Dry Food",
+    "images": [
+      "https://i.ibb.co.com/kWGrH35/images-2.jpg",
+      "https://i.ibb.co.com/kWGrH35/images-2.jpg",
+      "/images/royal3.jpg"
+    ],
+    "status": "available",
+    "tags": ["dog", "puppy", "dry-food"],
+    "brand": "Royal Canin",
+    "description": "High-quality dry food formulated for growing puppies to support healthy growth and digestion.",
+    "price": 3200
+  },
+  {
+    "petFoodTitle": "Whiskas Adult Cat Chicken Flavor",
+    "images": [
+      "https://i.ibb.co.com/TBDFpX5q/download-9.jpg",
+      "https://i.ibb.co.com/TBDFpX5q/download-9.jpg"
+    ],
+    "status": "available",
+    "tags": ["cat", "adult", "chicken"],
+    "brand": "Whiskas",
+    "description": "Balanced nutrition for adult cats with delicious chicken flavor and essential vitamins.",
+    "price": 850
+  },
+  {
+    "petFoodTitle": "Pedigree Adult Dog Wet Food",
+    "images": [
+      "https://i.ibb.co.com/wZ75fSnr/pedigree-can-in-Gravy-Beef-petcobd.jpg",
+      "https://i.ibb.co.com/wZ75fSnr/pedigree-can-in-Gravy-Beef-petcobd.jpg",
+      "/images/pedigree3.jpg"
+    ],
+    "status": "out-of-stock",
+    "tags": ["dog", "wet-food"],
+    "brand": "Pedigree",
+    "description": "Tasty wet food for adult dogs enriched with minerals to maintain strong bones and healthy fur.",
+    "price": 250
+  },
+  {
+    "petFoodTitle": "Me-O Tuna Cat Food",
+    "images": [
+      "https://i.ibb.co.com/NdCmgzQM/download-10.jpg",
+      "https://i.ibb.co.com/NdCmgzQM/download-10.jpg"
+    ],
+    "status": "available",
+    "tags": ["cat", "tuna", "adult"],
+    "brand": "Me-O",
+    "description": "Tuna-flavored cat food designed to support a shiny coat and proper urinary function.",
+    "price": 750
+  },
+  {
+    "petFoodTitle": "Drools Puppy Starter Dog Food",
+    "images": [
+      "https://i.ibb.co.com/vvgS3ckS/Frame344685206-1-600x.webp",
+      "/images/drools2.jpg"
+    ],
+    "status": "available",
+    "tags": ["dog", "puppy", "starter"],
+    "brand": "Drools",
+    "description": "Special starter formula for newborn puppies and lactating mothers for balanced nutrition.",
+    "price": 2800
+  },
+  {
+    "petFoodTitle": "SmartHeart Rabbit Pellet Food",
+    "images": [
+      "https://i.ibb.co.com/qL7KWQBt/Smart-Heart-Rabbit-Food-Veggies-Cereals-1kg.webp"
+    ],
+    "status": "available",
+    "tags": ["rabbit", "pellet", "small-pet"],
+    "brand": "SmartHeart",
+    "description": "Nutritious pellet food formulated for rabbits with fiber-rich ingredients.",
+    "price": 650
+  },
+  {
+    "petFoodTitle": "TetraBits Fish Food",
+    "images": [
+      "https://i.ibb.co.com/qL7KWQBt/Smart-Heart-Rabbit-Food-Veggies-Cereals-1kg.webp",
+      "/images/tetrabits2.jpg"
+    ],
+    "status": "available",
+    "tags": ["fish", "tropical-fish", "granules"],
+    "brand": "Tetra",
+    "description": "Premium fish food granules designed for tropical fish to enhance color and immunity.",
+    "price": 550
+  },
+  {
+    "petFoodTitle": "BirdsVille Parrot Mix Seeds",
+    "images": [
+      "https://i.ibb.co.com/NdCmgzQM/download-10.jpg"
+    ],
+    "status": "out-of-stock",
+    "tags": ["bird", "parrot", "seeds"],
+    "brand": "BirdsVille",
+    "description": "Healthy blend of seeds and grains for parrots to support energy and beak strength.",
+    "price": 400
+  },
+  {
+    "petFoodTitle": "Canine Creek Life Protection Puppy",
+    "images": [
+      "https://i.ibb.co.com/qL7KWQBt/Smart-Heart-Rabbit-Food-Veggies-Cereals-1kg.webp",
+      "/images/canine2.jpg",
+      "/images/canine3.jpg"
+    ],
+    "status": "available",
+    "tags": ["dog", "puppy", "premium"],
+    "brand": "Canine Creek",
+    "description": "Grain-free premium dog food designed to support puppy immunity and brain development.",
+    "price": 4500
+  },
+  {
+    "petFoodTitle": "KitCat Kitten Ocean Fish",
+    "images": [
+      "https://i.ibb.co.com/kWGrH35/images-2.jpg",
+      "/images/kitcat2.jpg"
+    ],
+    "status": "available",
+    "tags": ["cat", "kitten", "fish"],
+    "brand": "KitCat",
+    "description": "Formulated for kittens with DHA for brain development and high fish protein.",
+    "price": 950
+  }
+]

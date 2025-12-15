@@ -1,0 +1,72 @@
+[
+  {
+    "id": "VET001",
+    "name": "Dr. Afsana Rahman",
+    "specialization": "Small Animal Medicine",
+    "experience_years": 7,
+    "clinic_name": "Pet Care Veterinary Clinic",
+    "location": "Dhanmondi, Dhaka",
+    "phone": "+8801700000101",
+    "email": "afsana.rahman@petcare.com",
+    "meeting_fee_bdt": 800,
+    "image": "https://i.ibb.co/S4Bt9ppy/v1.jpg",
+    "available_days": ["Saturday", "Sunday", "Tuesday", "Thursday"],
+    "services": ["General Checkup", "Vaccination", "Skin Disease Treatment", "Laboratory Tests"]
+  },
+  {
+    "id": "VET002",
+    "name": "Dr. Mahmud Hasan",
+    "specialization": "Large Animal Surgery",
+    "experience_years": 12,
+    "clinic_name": "Green Farm Veterinary Hospital",
+    "location": "Gazipur, Dhaka",
+    "phone": "+8801700000202",
+    "email": "mahmud.hasan@greenfarm.com",
+    "meeting_fee_bdt": 1200,
+    "image": "https://i.ibb.co/FkRmmbmV/v5.jpg",
+    "available_days": ["Sunday", "Monday", "Wednesday"],
+    "services": ["Surgery", "Emergency Care", "Animal Nutrition Advice", "Ultrasound"]
+  },
+  {
+    "id": "VET003",
+    "name": "Dr. Priya Sultana",
+    "specialization": "Exotic Animals (Birds & Rabbits)",
+    "experience_years": 5,
+    "clinic_name": "Exotic Pet Zone",
+    "location": "Uttara, Dhaka",
+    "phone": "+8801700000303",
+    "email": "priya.sultana@epz.com",
+    "meeting_fee_bdt": 1000,
+    "image": "https://i.ibb.co/nMPq3ZwS/v2.png",
+    "available_days": ["Friday", "Saturday", "Tuesday"],
+    "services": ["Bird Treatment", "Rabbit Treatment", "Beak/Nail Trimming", "Vaccination"]
+  },
+  {
+    "id": "VET004",
+    "name": "Dr. Arif Chowdhury",
+    "specialization": "Pet Surgery & Orthopedics",
+    "experience_years": 9,
+    "clinic_name": "Modern Vet Hospital",
+    "location": "Chattogram",
+    "phone": "+8801700000404",
+    "email": "arif.chowdhury@modernvet.com",
+    "meeting_fee_bdt": 1500,
+    "image": "https://i.ibb.co/SX5r36b7/v4.jpg",
+    "available_days": ["Saturday", "Monday", "Thursday"],
+    "services": ["Orthopedic Surgery", "X-ray", "Spinal Treatment", "Emergency Surgery"]
+  },
+  {
+    "id": "VET005",
+    "name": "Dr. Neela Ahmed",
+    "specialization": "Pet Dermatology",
+    "experience_years": 6,
+    "clinic_name": "Healthy Paws Veterinary Clinic",
+    "location": "Sylhet",
+    "phone": "+8801700000505",
+    "email": "neela.ahmed@healthypaws.com",
+    "meeting_fee_bdt": 900,
+    "image": "https://i.ibb.co/Kx0GgvZ4/v3.jpg",
+    "available_days": ["Sunday", "Wednesday", "Friday"],
+    "services": ["Skin Allergy", "Hair Loss Treatment", "Tick/Flea Management", "Vaccination"]
+  }
+]
