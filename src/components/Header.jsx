@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Contexts/AuthContext/AuthContext";
+import CustomerHelp from "./CustomerHelp";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -21,6 +22,7 @@ const Header = () => {
   const { user, logout } = useContext(AuthContext);
   const [query, setQuery] = useState("");
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleSubmit = (e) => {
@@ -197,8 +199,8 @@ const Header = () => {
             </div>
 
             {/* Customer Help */}
-            <Link
-              to="/community"
+            <button
+              onClick={() => setIsHelpOpen(true)}
               className="flex items-center gap-2 text-[#002A48] hover:text-[#FFB84C] transition-colors group"
             >
               <FontAwesomeIcon
@@ -208,7 +210,7 @@ const Header = () => {
               <span className="hidden lg:block text-sm font-semibold group-hover:text-[#FFB84C]">
                 Customer Help
               </span>
-            </Link>
+            </button>
 
             {/* Checkout */}
             <Link
@@ -226,6 +228,9 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Customer Help Modal */}
+      <CustomerHelp isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </header>
   );
 };

@@ -140,23 +140,7 @@ const CommunityPage = () => {
                       {post.description}
                     </div>
 
-                    {/* Read More Button */}
-                    <button className="inline-flex items-center text-teal-600 font-semibold hover:text-teal-700 transition-colors group">
-                      Read Full Article
-                      <svg
-                        className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </button>
+                   
                   </div>
                 </div>
               </article>
