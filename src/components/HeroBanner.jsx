@@ -7,16 +7,16 @@ import {
   faStar,
   faShoppingBag,
   faCalendarAlt,
-  faGift,
+  
   faFootball,
 } from "@fortawesome/free-solid-svg-icons";
 
 const HeroBanner = () => {
   return (
     <section
-      className="relative bg-gradient-to-br from-[#FCEFD5] via-[#fff5e6] to-[#FCEFD5] overflow-hidden"
+      className="relative  overflow-hidden"
       style={{
-        backgroundImage: "url('/petbg.jpg')",
+        backgroundImage: "url('/petb.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -58,13 +58,7 @@ const HeroBanner = () => {
               & Loves
             </h1>
 
-            {/* Description - Adjusts text size and line height for readability */}
-            <p className="text-base sm:text-lg md:text-xl text-[#555] leading-relaxed max-w-xl">
-              Premium products, expert veterinary services, and a loving
-              community for your furry friends. From nutritious food to
-              professional grooming—we've got everything covered!{" "}
-              <FontAwesomeIcon icon={faPaw} className="text-[#FFB84C]" />
-            </p>
+           
 
             {/* Buttons - Stack on mobile, side-by-side on tablet+ */}
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2 sm:pt-4">
@@ -92,7 +86,7 @@ const HeroBanner = () => {
                     className="text-lg sm:text-2xl"
                   />
                 </div>
-                <div className="text-xs sm:text-sm text-[#555] mt-1">
+                <div className="text-xs sm:text-sm text-[#FFB84C] mt-1">
                   Customer Rating
                 </div>
               </div>
@@ -100,7 +94,7 @@ const HeroBanner = () => {
                 <div className="text-2xl sm:text-3xl font-bold text-[#FFB84C]">
                   10K+
                 </div>
-                <div className="text-xs sm:text-sm text-[#555] mt-1">
+                <div className="text-xs sm:text-sm text-[#FFB84C] mt-1">
                   Products
                 </div>
               </div>
@@ -108,54 +102,14 @@ const HeroBanner = () => {
                 <div className="text-2xl sm:text-3xl font-bold text-[#FFB84C]">
                   24/7
                 </div>
-                <div className="text-xs sm:text-sm text-[#555] mt-1">
+                <div className="text-xs sm:text-sm text-[#FFB84C] mt-1">
                   Support
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Visual - Hidden on small screens, shown on md+ */}
-          <div className="relative animate-fadeInRight mt-8 md:mt-0">
-            {/* Main Card - Responsive height and padding */}
-            <div className="relative bg-gradient-to-br from-white to-[#f8f9fa] rounded-2xl sm:rounded-3xl shadow-2xl p-0 overflow-hidden transform hover:scale-105 transition-transform duration-500">
-              {/* Image - Height adjusts for different screen sizes */}
-              <img
-                src="/petb.jpg"
-                alt="Pets banner"
-                className="w-full h-56 sm:h-64 md:h-72 lg:h-80 xl:h-96 object-cover"
-              />
-
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-
-              {/* Floating Badge - Responsive sizing and positioning */}
-              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-6 lg:right-6 bg-[#FFB84C] text-[#002A48] px-2 py-1 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 rounded-full font-bold shadow-lg animate-bounce flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base">
-                <FontAwesomeIcon icon={faGift} /> New Arrivals
-              </div>
-
-              {/* Bottom text - Responsive sizing */}
-              <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 lg:bottom-6 lg:left-6 text-white">
-                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
-                  New Arrivals
-                </h3>
-                <p className="text-xs sm:text-sm md:text-base">
-                  Treats, toys and more for your companion
-                </p>
-              </div>
-            </div>
-
-            {/* Decorative Floating Elements - Hidden on mobile, shown on md+ for cleaner mobile view */}
-            <div className="hidden md:block absolute -top-4 lg:-top-6 -right-4 lg:-right-6 bg-[#002A48] text-white w-14 h-14 lg:w-20 lg:h-20 rounded-full flex items-center justify-center text-2xl lg:text-3xl shadow-xl animate-spin-slow">
-              <FontAwesomeIcon icon={faPaw} />
-            </div>
-            <div className="hidden md:block absolute -bottom-4 lg:-bottom-6 -left-4 lg:-left-6 bg-[#FFB84C] text-[#002A48] w-16 h-16 lg:w-24 lg:h-24 rounded-full flex items-center justify-center text-3xl lg:text-4xl shadow-xl animate-bounce-slow">
-              <FontAwesomeIcon icon={faFootball} />
-            </div>
-            <div className="hidden lg:block absolute top-1/2 -right-6 lg:-right-8 bg-white w-12 h-12 lg:w-16 lg:h-16 rounded-full flex items-center justify-center text-xl lg:text-2xl shadow-lg animate-pulse">
-              <FontAwesomeIcon icon={faHeart} className="text-[#FFB84C]" />
-            </div>
-          </div>
+      
         </div>
       </div>
     </section>
