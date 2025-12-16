@@ -165,6 +165,17 @@ const Navbar = ({ userRole: propUserRole, shouldShowHeader }) => {
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] group-hover:w-full transition-all duration-300 ease-out"></span>
                   <span className="absolute inset-0 bg-[#FFB84C] opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></span>
                 </Link>
+                <Link
+                  to="/doctor-payments"
+                  className="relative text-[#002A48] font-semibold text-sm uppercase tracking-wide px-4 py-2 group"
+                >
+                  <span className="relative z-10 group-hover:text-[#FFB84C] transition-colors duration-300">
+                    Payments
+                  </span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] group-hover:w-full transition-all duration-300 ease-out"></span>
+                  <span className="absolute inset-0 bg-[#FFB84C] opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></span>
+                </Link>
+               
               </>
             )}
 
@@ -370,16 +381,7 @@ const Navbar = ({ userRole: propUserRole, shouldShowHeader }) => {
                     </span>
                     <span className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-10"></span>
                   </Link>
-                  <Link
-                    to="/doctor-settings"
-                    className="relative text-[#002A48] font-semibold text-sm uppercase tracking-wide py-3 px-4 rounded-lg group overflow-hidden"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <span className="relative z-10 group-hover:text-[#FFB84C] transition-colors duration-300">
-                      Settings
-                    </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-10"></span>
-                  </Link>
+                  
                 </>
               )}
 

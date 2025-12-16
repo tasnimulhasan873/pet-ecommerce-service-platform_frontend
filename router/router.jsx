@@ -26,7 +26,7 @@ import DoctorDashboard from "../src/pages/DoctorDashboard.jsx";
 import DoctorAppointments from "../src/pages/DoctorAppointments.jsx";
 import DoctorProfile from "../src/pages/DoctorProfile.jsx";
 import DoctorPayments from "../src/pages/DoctorPayments.jsx";
-import DoctorSettings from "../src/pages/DoctorSettings.jsx";
+
 
 // Admin Pages
 import AdminDashboard from "../src/pages/Admin/AdminDashboard.jsx";
@@ -186,14 +186,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      {
-        path: "doctor-settings",
-        element: (
-          <PrivateRoute allowedRoles={["doctor"]}>
-            <DoctorSettings />
-          </PrivateRoute>
-        ),
-      },
+   
 
       // ========== ADMIN ROUTES ==========
       {
