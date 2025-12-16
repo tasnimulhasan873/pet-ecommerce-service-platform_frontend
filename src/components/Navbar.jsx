@@ -306,8 +306,9 @@ const Navbar = ({ userRole: propUserRole, shouldShowHeader }) => {
                 <span className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-10"></span>
               </Link>
 
-              {/* Customer navigation - Hide for doctor role */}
+              {/* Customer navigation - Hide for doctor and admin roles */}
               {userRole !== "doctor" &&
+                userRole !== "admin" &&
                 ["Products", "Services", "Rewards", "Community"].map((item) => (
                   <Link
                     key={item}
@@ -379,6 +380,35 @@ const Navbar = ({ userRole: propUserRole, shouldShowHeader }) => {
                     </span>
                     <span className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-10"></span>
                   </Link>
+                </>
+              )}
+
+              {/* Admin-specific mobile navigation */}
+              {userRole === "admin" && (
+                <>
+                  {[
+                    "Dashboard",
+                    "Users",
+                    "Doctors",
+                    "Orders",
+                    "Products",
+                    "Services",
+                    "Payments",
+                    "Coupons",
+                    "Community",
+                  ].map((item) => (
+                    <Link
+                      key={item}
+                      to={`/admin-${item.toLowerCase()}`}
+                      className="relative text-[#002A48] font-semibold text-sm uppercase tracking-wide py-3 px-4 rounded-lg group overflow-hidden"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <span className="relative z-10 group-hover:text-[#FFB84C] transition-colors duration-300">
+                        {item}
+                      </span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-10"></span>
+                    </Link>
+                  ))}
                 </>
               )}
 
