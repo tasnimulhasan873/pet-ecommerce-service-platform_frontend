@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import {
   faStar,
   faHeart as faHeartSolid,
@@ -203,15 +204,19 @@ const ProductSection = () => {
           </div>
         )}
 
-        {/* View All Button - Responsive sizing and padding */}
-        <div className="text-center px-4">
-          <button className="group relative bg-[#002A48] text-white px-6 sm:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 rounded-full font-bold hover:bg-[#013A60] transition-all shadow-xl hover:shadow-2xl hover:scale-105 overflow-hidden flex items-center justify-center gap-2 mx-auto text-sm sm:text-base w-full sm:w-auto max-w-md">
-            <span className="relative z-10">View All 10,000+ Products</span>
-            <FontAwesomeIcon icon={faArrowRight} className="relative z-10" />
-            {/* Animated gradient background on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-          </button>
-        </div>
+      {/* View All Button */}
+<div className="text-center px-4">
+  <Link
+    to="/products"
+    className="group relative bg-[#002A48] text-white px-6 sm:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 rounded-full font-bold hover:bg-[#013A60] transition-all shadow-xl hover:shadow-2xl hover:scale-105 overflow-hidden flex items-center justify-center gap-2 mx-auto text-sm sm:text-base w-full sm:w-auto max-w-md"
+  >
+    <span className="relative z-10">View All Products</span>
+    <FontAwesomeIcon icon={faArrowRight} className="relative z-10" />
+
+    {/* Animated gradient */}
+    <div className="absolute inset-0 bg-gradient-to-r from-[#FFB84C] to-[#ff9f1c] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+  </Link>
+</div>
       </div>
     </section>
   );

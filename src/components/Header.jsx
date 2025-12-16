@@ -145,7 +145,7 @@ const Header = () => {
   }, [isAccountMenuOpen, showSearchResults]);
 
   return (
-    <header className="bg-white shadow-md fixed top-0 w-full z-[60]">
+    <header className="bg-white shadow-md fixed top-0 w-full z-[60] py-2  sm:py-0">
       <div className="max-w-7xl mx-auto px-4 ">
         <div className="flex items-center justify-between gap-4">
           {/* Left Section - Logo */}
