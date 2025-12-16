@@ -61,7 +61,7 @@ const CartPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0] pt-28 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0] pt-28 flex items-center justify-center  ">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#FFB84C] mx-auto mb-4"></div>
           <p className="text-[#002A48] text-lg font-semibold">
@@ -77,7 +77,7 @@ const CartPage = () => {
       {/* Responsive container padding */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header - Responsive spacing and sizing */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8 pt-12">
           {/* Back button - Responsive text */}
           <Link
             to="/products"
