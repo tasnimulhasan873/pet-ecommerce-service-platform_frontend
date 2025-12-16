@@ -20,39 +20,7 @@ const Footer = () => {
     <footer className="bg-[#FCEFD5] pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Section */}
-        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-12">
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-            {/* Left Content */}
-            <div className="text-center md:text-left">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#002A48] mb-2 flex justify-center md:justify-start items-center gap-2">
-                Subscribe to Our Newsletter{" "}
-                <FontAwesomeIcon
-                  icon={faEnvelopeSolid}
-                  className="text-[#FFB84C] text-lg sm:text-xl"
-                />
-              </h3>
-              <p className="text-[#555] text-sm sm:text-base">
-                Get pet care tips, exclusive deals, and updates delivered to
-                your inbox!
-              </p>
-            </div>
-
-            {/* Right Form */}
-            <form className="flex flex-col sm:flex-row gap-3 w-full">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-full border-2 border-[#002A48] focus:outline-none focus:border-[#FFB84C] text-sm sm:text-base"
-              />
-              <button
-                type="submit"
-                className="bg-[#002A48] text-white px-6 sm:px-8 py-3 rounded-full font-semibold hover:bg-[#013A60] transition text-sm sm:text-base"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
+       
 
         {/* Main Footer Content - Responsive grid: 1 col on mobile, 2 on tablet, 4 on desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-12">
