@@ -1,13 +1,60 @@
+import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import HeroBanner from "../components/HeroBanner";
 import ProductSection from "../components/ProductSection";
 import ServiceBooking from "../components/ServiceBooking";
 import CommunitySection from "../components/CommunitySection";
 import Footer from "../components/Footer";
+import { AuthContext } from "../Contexts/AuthContext/AuthContext";
 
 const HomePage = () => {
+  const { user } = useContext(AuthContext);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchRole = async () => {
+      try {
+        // Prefer role on user object if available
+        if (user && user.role) {
+          mounted && setRole(user.role);
+          return;
+        }
+
+        // If no authenticated user, treat as public 'user' (keeps top padding)
+        if (!user || !user.email) {
+          mounted && setRole("user");
+          return;
+        }
+
+        // Ask backend for the role (single source of truth)
+        const res = await axios.post("http://localhost:3000/api/user/role", {
+          email: user.email,
+        });
+        if (res?.data?.success && mounted) {
+          setRole(res.data.role || "user");
+        } else if (mounted) {
+          setRole("user");
+        }
+      } catch (err) {
+        console.error("Failed to fetch user role:", err);
+        mounted && setRole("user");
+      }
+    };
+
+    fetchRole();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
+
+  const mainPaddingClass =
+    role === "admin" || role === "doctor" ? "pt-0" : "pt-28";
   return (
     <div className="min-h-screen bg-white">
-      <main className="pt-28">
+      <main className={mainPaddingClass}>
         <HeroBanner />
         <ProductSection />
         {/* Static Promo / Info Section */}
