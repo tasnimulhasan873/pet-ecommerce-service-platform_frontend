@@ -8,8 +8,10 @@ import {
   faTag,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 
 import { CartContext } from "../Contexts/CartContext/CartContext";
+import { WishlistContext } from "../Contexts/WishlistContext/WishlistContext";
 import { formatBdt } from "../utils/currency";
 import { getAllProducts } from "../api/productsAPI";
 
@@ -18,10 +20,13 @@ const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
   const { addToCart } = useContext(CartContext);
+  const { wishlist, toggleWishlist, isInWishlist } =
+    useContext(WishlistContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [togglingWishlist, setTogglingWishlist] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -93,6 +98,24 @@ const ProductsPage = () => {
     navigate(`/product/${productId}`);
   };
 
+  const handleWishlistToggle = async (e, product) => {
+    e.stopPropagation();
+    setTogglingWishlist(product.id);
+
+    const result = await toggleWishlist(product);
+    if (result.success) {
+      const message =
+        result.action === "added"
+          ? "Added to wishlist ❤️"
+          : "Removed from wishlist";
+      alert(message);
+    } else {
+      alert(result.message || "Failed to update wishlist");
+    }
+
+    setTogglingWishlist(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0] pt-28">
       <div className="container mx-auto px-6 py-12">
@@ -160,6 +183,34 @@ const ProductsPage = () => {
                     {product.badge}
                   </div>
                 )}
+
+                {/* Wishlist Heart Icon */}
+                <button
+                  onClick={(e) => handleWishlistToggle(e, product)}
+                  disabled={togglingWishlist === product.id}
+                  className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white p-2.5 rounded-full shadow-lg transition transform hover:scale-110 disabled:opacity-50"
+                  title={
+                    isInWishlist(product.id)
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                  }
+                >
+                  {togglingWishlist === product.id ? (
+                    <div className="animate-spin h-5 w-5 border-2 border-red-500 border-t-transparent rounded-full"></div>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={
+                        isInWishlist(product.id) ? faHeartSolid : faHeartRegular
+                      }
+                      className={`text-xl transition ${
+                        isInWishlist(product.id)
+                          ? "text-red-500"
+                          : "text-gray-400 hover:text-red-500"
+                      }`}
+                    />
+                  )}
+                </button>
+
                 {/* Product Image */}
                 <div className="relative overflow-hidden bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0] h-64">
                   <img

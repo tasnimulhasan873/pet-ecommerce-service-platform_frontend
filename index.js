@@ -15,24 +15,59 @@ const bdtToUsd = (bdt) => parseFloat((bdt / USD_TO_BDT_RATE).toFixed(2));
 const formatBdt = (amount) => `৳${Math.round(amount).toLocaleString()}`;
 
 const app = express();
+
+// Allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://petecommerce-9eef4.web.app",
+  "https://petecommerce-9eef4.firebaseapp.com",
+  "https://puchito.netlify.app",
+];
+
+// CORS configuration for production
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      const msg = "The CORS policy does not allow access from the specified origin.";
+      return callback(new Error(msg), false);
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  exposedHeaders: ["Set-Cookie"],
+  optionsSuccessStatus: 200,
 }));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // In-memory lock to prevent duplicate concurrent requests
 const processingPayments = new Set();
 
-const client = new MongoClient(process.env.MONGO_URI);
+// MongoDB client with connection pooling for serverless
+const client = new MongoClient(process.env.MONGO_URI, {
+  maxPoolSize: 10,
+  minPoolSize: 1,
+  maxIdleTimeMS: 10000,
+});
+
 let usersCollection;
 let cartsCollection;
 let couponsCollection;
 let ordersCollection;
 let appointmentsCollection;
 let productsCollection;
+let wishlistCollection;
+
+// Track connection state
+let isConnected = false;
 let communityCollection;
 
 // Google Meet Link Generator
@@ -124,9 +159,15 @@ async function isAppointmentConflict(doctorId, appointmentDate, appointmentTime,
   }
 }
 
-async function run() {
+// Connect to MongoDB with caching for serverless
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+
   try {
     await client.connect();
+    isConnected = true;
     console.log("MongoDB Connected Successfully 🟢");
 
     const db = client.db("petplatform");
@@ -137,6 +178,7 @@ async function run() {
     appointmentsCollection = db.collection("appointments");
     productsCollection = db.collection("products");
     communityCollection = db.collection("communityPosts");
+    wishlistCollection = db.collection("wishlists");
 
     // Create unique index on transactionId to prevent duplicate orders
     try {
@@ -924,8 +966,142 @@ async function run() {
     });
 
     // ====================================
-    // COUPON ROUTES
+    // WISHLIST ROUTES
     // ====================================
+
+    // Toggle wishlist item (add/remove)
+    app.post("/api/wishlist/toggle", async (req, res) => {
+      try {
+        const { userEmail, productId, productSnapshot } = req.body;
+
+        if (!userEmail || !productId) {
+          return res.status(400).json({ success: false, message: "User email and product ID are required" });
+        }
+
+        // Check if item already exists in wishlist
+        const existingItem = await wishlistCollection.findOne({
+          userEmail,
+          productId
+        });
+
+        if (existingItem) {
+          // Remove from wishlist
+          await wishlistCollection.deleteOne({ userEmail, productId });
+          return res.json({
+            success: true,
+            action: "removed",
+            message: "Product removed from wishlist"
+          });
+        } else {
+          // Add to wishlist
+          const wishlistItem = {
+            userEmail,
+            productId,
+            productSnapshot: productSnapshot || {},
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+
+          await wishlistCollection.insertOne(wishlistItem);
+          return res.json({
+            success: true,
+            action: "added",
+            message: "Product added to wishlist"
+          });
+        }
+      } catch (error) {
+        console.error("Error toggling wishlist:", error);
+        res.status(500).json({ success: false, message: "Error updating wishlist" });
+      }
+    });
+
+    // Get user's wishlist
+    app.get("/api/wishlist/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+
+        if (!email) {
+          return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        const wishlist = await wishlistCollection
+          .find({ userEmail: email })
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.json({ success: true, wishlist });
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+        res.status(500).json({ success: false, message: "Error fetching wishlist" });
+      }
+    });
+
+    // Remove item from wishlist
+    app.delete("/api/wishlist/remove", async (req, res) => {
+      try {
+        const { userEmail, productId } = req.body;
+
+        if (!userEmail || !productId) {
+          return res.status(400).json({ success: false, message: "User email and product ID are required" });
+        }
+
+        const result = await wishlistCollection.deleteOne({ userEmail, productId });
+
+        if (result.deletedCount === 0) {
+          return res.status(404).json({ success: false, message: "Item not found in wishlist" });
+        }
+
+        res.json({ success: true, message: "Item removed from wishlist" });
+      } catch (error) {
+        console.error("Error removing from wishlist:", error);
+        res.status(500).json({ success: false, message: "Error removing item" });
+      }
+    });
+
+    // Clear entire wishlist
+    app.delete("/api/wishlist/clear/:email", async (req, res) => {
+      try {
+        const { email } = req.params;
+
+        if (!email) {
+          return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        await wishlistCollection.deleteMany({ userEmail: email });
+        res.json({ success: true, message: "Wishlist cleared" });
+      } catch (error) {
+        console.error("Error clearing wishlist:", error);
+        res.status(500).json({ success: false, message: "Error clearing wishlist" });
+      }
+    });
+
+    // Check wishlist status for multiple products
+    app.post("/api/wishlist/check", async (req, res) => {
+      try {
+        const { userEmail, productIds } = req.body;
+
+        if (!userEmail || !Array.isArray(productIds)) {
+          return res.status(400).json({ success: false, message: "User email and product IDs array are required" });
+        }
+
+        const wishlistItems = await wishlistCollection
+          .find({
+            userEmail,
+            productId: { $in: productIds }
+          })
+          .toArray();
+
+        const wishlistedIds = wishlistItems.map(item => item.productId);
+        res.json({ success: true, wishlistedIds });
+      } catch (error) {
+        console.error("Error checking wishlist status:", error);
+        res.status(500).json({ success: false, message: "Error checking wishlist" });
+      }
+    });
+
+    // ====================================
+    // COUPON ROUTES
+    // ===================================="
 
     // Apply coupon
     app.post("/coupon/apply", async (req, res) => {
@@ -2833,14 +3009,31 @@ async function run() {
     });
 
 
-    const port = process.env.PORT || 3000;
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
-    });
+    // Start server only in non-serverless environment
+    if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+      const port = process.env.PORT || 3000;
+      app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+      });
+    }
 
   } catch (err) {
     console.log("Error connecting to MongoDB:", err);
+    throw err;
   }
 }
 
-run();
+// Initialize database connection and routes
+connectToDatabase().catch(console.error);
+
+// Health check route
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Backend API is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Export the Express app for Vercel
+module.exports = app;

@@ -18,11 +18,14 @@ import {
   faUserCircle,
   faSignOutAlt,
   faTimes,
+  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
+import { WishlistContext } from "../Contexts/WishlistContext/WishlistContext";
 
 const Header = () => {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
+  const { wishlistCount } = useContext(WishlistContext);
   const [query, setQuery] = useState("");
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -397,6 +400,21 @@ const Header = () => {
             </button>
 
             {/* Checkout */}
+            <Link
+              to="/wishlist"
+              className="flex items-center gap-2 text-[#002A48] hover:text-[#FFB84C] transition-colors group relative"
+            >
+              <FontAwesomeIcon icon={faHeart} className="text-lg md:text-xl" />
+              <span className="hidden lg:block text-sm font-semibold group-hover:text-[#FFB84C]">
+                Wishlist
+              </span>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             <Link
               to="/cart"
               className="flex items-center gap-2 text-[#002A48] hover:text-[#FFB84C] transition-colors group relative"

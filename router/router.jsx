@@ -20,13 +20,13 @@ import Dashboard from "../src/pages/Dashboard.jsx";
 import Orders from "../src/pages/Orders.jsx";
 import MyServices from "../src/pages/MyServices.jsx";
 import AccountDetails from "../src/pages/AccountDetails.jsx";
+import WishlistPage from "../src/pages/WishlistPage.jsx";
 
 // Doctor Pages
 import DoctorDashboard from "../src/pages/DoctorDashboard.jsx";
 import DoctorAppointments from "../src/pages/DoctorAppointments.jsx";
 import DoctorProfile from "../src/pages/DoctorProfile.jsx";
 import DoctorPayments from "../src/pages/DoctorPayments.jsx";
-
 
 // Admin Pages
 import AdminDashboard from "../src/pages/Admin/AdminDashboard.jsx";
@@ -152,6 +152,22 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "wishlist",
+        element: (
+          <PrivateRoute allowedRoles={["customer"]}>
+            <WishlistPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "account-details",
+        element: (
+          <PrivateRoute allowedRoles={["customer"]}>
+            <AccountDetails />
+          </PrivateRoute>
+        ),
+      },
 
       // ========== DOCTOR ROUTES ==========
       {
@@ -186,7 +202,6 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-   
 
       // ========== ADMIN ROUTES ==========
       {

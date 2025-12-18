@@ -5,12 +5,15 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "../router/router.jsx";
 import AuthProvider from "./Contexts/AuthContext/AuthProvider.jsx";
 import CartProvider from "./Contexts/CartContext/CartProvider.jsx";
+import WishlistProvider from "./Contexts/WishlistContext/WishlistProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
       <CartProvider>
-        <RouterProvider router={router} />
+        <WishlistProvider>
+          <RouterProvider router={router} />
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   </StrictMode>
