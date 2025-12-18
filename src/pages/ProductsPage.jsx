@@ -8,7 +8,7 @@ import {
   faTag,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+
 import { CartContext } from "../Contexts/CartContext/CartContext";
 import { formatBdt } from "../utils/currency";
 import { getAllProducts } from "../api/productsAPI";
@@ -160,29 +160,6 @@ const ProductsPage = () => {
                     {product.badge}
                   </div>
                 )}
-
-                {/* Wishlist Button */}
-                <button
-                  className="absolute top-4 right-4 z-10 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-[#FFB84C] transition-all duration-300 opacity-0 group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log(`Added ${product.name} to wishlist`);
-                  }}
-                >
-                  <FontAwesomeIcon
-                    icon={
-                      hoveredProduct === product.id
-                        ? faHeartSolid
-                        : faHeartRegular
-                    }
-                    className={
-                      hoveredProduct === product.id
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }
-                  />
-                </button>
-
                 {/* Product Image */}
                 <div className="relative overflow-hidden bg-gradient-to-br from-[#F8FAFC] to-[#E2E8F0] h-64">
                   <img
