@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { formatBdt } from "../utils/currency";
+import { formatBdt, toBDT } from "../utils/currency";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -37,7 +37,7 @@ const ServiceBooking = () => {
             specialization: d.specialization || "General Veterinary",
             experience: d.experience || d.experience_years || "5+ years",
             location: d.city || d.address || d.location || "Available Online",
-            consultationFee: d.consultationFee || d.meeting_fee_bdt || 800,
+            consultationFee: parseFloat(d.consultationFee) || 4,
             image:
               d.photoURL ||
               d.image ||
@@ -185,7 +185,7 @@ const ServiceBooking = () => {
                       Consultation Fee
                     </p>
                     <p className="text-xl font-bold text-[#002A48]">
-                      {formatBdt(doctor.consultationFee)}
+                      {formatBdt(toBDT(doctor.consultationFee))}
                     </p>
                   </div>
                   <button className="bg-[#002A48] text-white px-5 py-2.5 rounded-full hover:bg-[#FFB84C] hover:text-[#002A48] transition-all duration-300 font-semibold text-sm shadow-md hover:shadow-lg group-hover:scale-105">

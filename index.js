@@ -1620,6 +1620,69 @@ async function connectToDatabase() {
           });
         }
 
+        // ========== VALIDATE DOCTOR AVAILABILITY ==========
+
+        // Fetch doctor details from database
+        const doctor = await usersCollection.findOne({
+          $or: [
+            { _id: ObjectId.isValid(doctorId) ? new ObjectId(doctorId) : null },
+            { userEmail: doctorEmail }
+          ],
+          role: "doctor"
+        });
+
+        if (!doctor) {
+          return res.status(404).json({
+            success: false,
+            message: "Doctor not found"
+          });
+        }
+
+        // Check if doctor has availability settings
+        if (!doctor.availableDays || doctor.availableDays.length === 0) {
+          // If no availability set, allow booking (backward compatibility)
+          console.log("⚠️ Doctor has no availability settings, allowing booking");
+        } else {
+          // Validate selected date matches available days
+          const selectedDateObj = new Date(selectedDate);
+          const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+          const selectedDayName = dayNames[selectedDateObj.getDay()];
+
+          if (!doctor.availableDays.includes(selectedDayName)) {
+            return res.status(400).json({
+              success: false,
+              message: `Doctor is not available on ${selectedDayName}. Available days: ${doctor.availableDays.join(", ")}`
+            });
+          }
+
+          // Validate selected time is within available time range
+          if (doctor.availableTimeStart && doctor.availableTimeEnd) {
+            // Convert 12-hour time to 24-hour for comparison
+            const convertTo24Hour = (time12h) => {
+              const [time, period] = time12h.split(" ");
+              let [hours, minutes] = time.split(":").map(Number);
+
+              if (period === "PM" && hours !== 12) hours += 12;
+              if (period === "AM" && hours === 12) hours = 0;
+
+              return hours * 60 + minutes; // Return total minutes
+            };
+
+            const selectedTimeMinutes = convertTo24Hour(selectedTime);
+            const [startHour, startMin] = doctor.availableTimeStart.split(":").map(Number);
+            const [endHour, endMin] = doctor.availableTimeEnd.split(":").map(Number);
+            const startMinutes = startHour * 60 + startMin;
+            const endMinutes = endHour * 60 + endMin;
+
+            if (selectedTimeMinutes < startMinutes || selectedTimeMinutes >= endMinutes) {
+              return res.status(400).json({
+                success: false,
+                message: `Selected time is outside doctor's available hours (${doctor.availableTimeStart} - ${doctor.availableTimeEnd})`
+              });
+            }
+          }
+        }
+
         // Check if account details are complete (using email)
         const isComplete = await isAccountDetailsComplete(userEmail);
         if (!isComplete) {
@@ -1640,12 +1703,21 @@ async function connectToDatabase() {
           });
         }
 
-        // Convert BDT fee to USD for Stripe
-        const feeUSD = bdtToUsd(doctorFee);
+        // doctorFee is already in USD from frontend
+        // Ensure it's a valid number
+        const feeUSD = parseFloat(doctorFee);
+        const feeBDT = usdToBdt(feeUSD);
 
-        // Create Payment Intent
+        if (isNaN(feeUSD) || feeUSD <= 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid consultation fee"
+          });
+        }
+
+        // Create Payment Intent with USD amount
         const paymentIntent = await stripe.paymentIntents.create({
-          amount: Math.round(feeUSD * 100), // Convert to cents
+          amount: Math.round(feeUSD * 100), // Convert USD to cents for Stripe
           currency: "usd",
           metadata: {
             type: "appointment",
@@ -1656,7 +1728,7 @@ async function connectToDatabase() {
             appointmentTime: selectedTime,
             userId,
             userEmail,
-            feeBDT: doctorFee.toString(),
+            feeBDT: feeBDT.toString(),
             feeUSD: feeUSD.toString(),
           },
         });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { formatBdt } from "../utils/currency";
+import { formatBdt, toBDT } from "../utils/currency";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -40,7 +40,7 @@ const ServicesPage = () => {
             experience_years: d.experience_years || 0,
             clinic_name: d.clinic_name || "",
             location: d.address || d.city || d.location || "",
-            meeting_fee_bdt: d.meeting_fee_bdt || 800,
+            consultationFee: parseFloat(d.consultationFee) || 4,
             image:
               d.photoURL ||
               d.image ||
@@ -204,7 +204,7 @@ const ServicesPage = () => {
                         Consultation Fee
                       </p>
                       <p className="text-2xl font-bold text-[#002A48]">
-                        {formatBdt(doctor.meeting_fee_bdt)}
+                        {formatBdt(toBDT(doctor.consultationFee))}
                       </p>
                     </div>
                     <button className="bg-[#002A48] text-white px-6 py-3 rounded-full hover:bg-[#FFB84C] hover:text-[#002A48] transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { formatBdt } from "../utils/currency";
+import { formatBdt, toBDT } from "../utils/currency";
 import axios from "axios";
 import { AuthContext } from "../Contexts/AuthContext/AuthContext";
 import { Elements } from "@stripe/react-stripe-js";
@@ -18,6 +18,7 @@ import {
   faHospital,
   faStar,
   faAward,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 
 const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_KEY);
@@ -28,7 +29,6 @@ const DoctorDetails = () => {
   const { user } = useContext(AuthContext);
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDay, setSelectedDay] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [showPayment, setShowPayment] = useState(false);
@@ -36,6 +36,8 @@ const DoctorDetails = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [appointmentData, setAppointmentData] = useState(null);
   const [error, setError] = useState(null);
+  const [dateError, setDateError] = useState("");
+  const [timeSlots, setTimeSlots] = useState([]);
 
   useEffect(() => {
     // Fetch doctor data from MongoDB API
@@ -58,39 +60,28 @@ const DoctorDetails = () => {
               id: foundDoctor._id,
               name: foundDoctor.userName,
               email: foundDoctor.userEmail,
-
               specialization:
                 foundDoctor.specialization || "General Veterinary",
-              experience_years: foundDoctor.experience_years || 0,
+              experience: foundDoctor.experience || "5+ years",
               clinic_name: foundDoctor.clinic_name || "Private Clinic",
               location:
                 foundDoctor.address ||
                 foundDoctor.city ||
                 "Location not specified",
-              meeting_fee_bdt: foundDoctor.meeting_fee_bdt || 800,
+              consultationFee: parseFloat(foundDoctor.consultationFee) || 4,
               image:
                 foundDoctor.photoURL ||
                 "https://via.placeholder.com/400x400?text=Doctor",
-              available_days: foundDoctor.available_days || [
-                "Saturday",
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-              ],
+              availableDays: foundDoctor.availableDays || [],
+              availableTimeStart: foundDoctor.availableTimeStart || "09:00",
+              availableTimeEnd: foundDoctor.availableTimeEnd || "17:00",
+              bio: foundDoctor.bio || "Experienced veterinary professional",
               services: foundDoctor.services || [
                 "General Checkup",
                 "Vaccination",
                 "Consultation",
               ],
             });
-
-            if (
-              foundDoctor.available_days &&
-              foundDoctor.available_days.length > 0
-            ) {
-              setSelectedDay(foundDoctor.available_days[0]);
-            }
           } else {
             setError("Doctor not found");
           }
@@ -108,15 +99,99 @@ const DoctorDetails = () => {
     fetchDoctor();
   }, [doctorId]);
 
-  const timeSlots = [
-    "09:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "02:00 PM",
-    "03:00 PM",
-    "04:00 PM",
-    "05:00 PM",
-  ];
+  // Generate time slots based on doctor's availability
+  const generateTimeSlots = (startTime, endTime) => {
+    const slots = [];
+    const [startHour, startMin] = startTime.split(":").map(Number);
+    const [endHour, endMin] = endTime.split(":").map(Number);
+
+    let currentHour = startHour;
+    let currentMin = startMin;
+
+    while (
+      currentHour < endHour ||
+      (currentHour === endHour && currentMin < endMin)
+    ) {
+      const hour12 = currentHour % 12 || 12;
+      const period = currentHour < 12 ? "AM" : "PM";
+      const timeString = `${hour12.toString().padStart(2, "0")}:${currentMin
+        .toString()
+        .padStart(2, "0")} ${period}`;
+
+      slots.push(timeString);
+
+      // Increment by 30 minutes
+      currentMin += 30;
+      if (currentMin >= 60) {
+        currentMin = 0;
+        currentHour++;
+      }
+    }
+
+    return slots;
+  };
+
+  // Get day name from date
+  const getDayName = (dateString) => {
+    const date = new Date(dateString);
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    return days[date.getDay()];
+  };
+
+  // Validate if selected date is available
+  const isDateAvailable = (dateString) => {
+    if (!doctor || !doctor.availableDays || doctor.availableDays.length === 0)
+      return true;
+    const dayName = getDayName(dateString);
+    return doctor.availableDays.includes(dayName);
+  };
+
+  // Handle date selection
+  const handleDateChange = (dateValue) => {
+    setSelectedDate(dateValue);
+    setSelectedTime(""); // Reset time when date changes
+    setDateError("");
+
+    if (dateValue) {
+      const isAvailable = isDateAvailable(dateValue);
+      if (!isAvailable) {
+        const dayName = getDayName(dateValue);
+        setDateError(
+          `❌ Doctor is not available on ${dayName}. Please select another date.`
+        );
+        setTimeSlots([]);
+      } else {
+        // Generate time slots for this date
+        if (doctor.availableTimeStart && doctor.availableTimeEnd) {
+          const slots = generateTimeSlots(
+            doctor.availableTimeStart,
+            doctor.availableTimeEnd
+          );
+          setTimeSlots(slots);
+        }
+      }
+    } else {
+      setTimeSlots([]);
+    }
+  };
+
+  // Check if a specific date should be disabled in calendar
+  const isDateDisabled = (date) => {
+    if (!doctor || !doctor.availableDays || doctor.availableDays.length === 0)
+      return false;
+
+    const dateString = date.toISOString().split("T")[0];
+    const dayName = getDayName(dateString);
+    return !doctor.availableDays.includes(dayName);
+  };
 
   const handleBookAppointment = async () => {
     if (!user) {
@@ -125,8 +200,22 @@ const DoctorDetails = () => {
       return;
     }
 
-    if (!selectedTime || !selectedDate) {
-      alert("Please select a date and time for your appointment");
+    if (!selectedDate) {
+      alert("Please select a date for your appointment");
+      return;
+    }
+
+    if (!selectedTime) {
+      alert("Please select a time slot for your appointment");
+      return;
+    }
+
+    // Validate date is available
+    if (!isDateAvailable(selectedDate)) {
+      const dayName = getDayName(selectedDate);
+      alert(
+        `Doctor is not available on ${dayName}. Please select a different date.`
+      );
       return;
     }
 
@@ -140,7 +229,7 @@ const DoctorDetails = () => {
           doctorId: doctor.id,
           doctorName: doctor.name,
           doctorEmail: doctor.email,
-          doctorFee: doctor.meeting_fee_bdt,
+          doctorFee: parseFloat(doctor.consultationFee),
           selectedDate: selectedDate,
           selectedTime: selectedTime,
           userId: user.uid,
@@ -154,7 +243,7 @@ const DoctorDetails = () => {
           doctorId: doctor.id,
           doctorName: doctor.name,
           doctorEmail: doctor.email,
-          doctorFee: doctor.meeting_fee_bdt,
+          doctorFee: parseFloat(doctor.consultationFee),
           selectedDate,
           selectedTime,
         });
@@ -310,7 +399,7 @@ const DoctorDetails = () => {
                     className="text-[#FFB84C] mr-1"
                   />
                   <span className="font-bold text-[#002A48]">
-                    {doctor.experience_years}+ yrs
+                    {doctor.experience}
                   </span>
                 </div>
               </div>
@@ -357,9 +446,44 @@ const DoctorDetails = () => {
                 <div className="bg-gradient-to-r from-[#002A48] to-[#004080] text-white p-4 rounded-xl">
                   <p className="text-sm opacity-90 mb-1">Consultation Fee</p>
                   <p className="text-3xl font-bold">
-                    {formatBdt(doctor.meeting_fee_bdt)}
+                    {formatBdt(toBDT(doctor.consultationFee))}
+                  </p>
+                  <p className="text-xs opacity-75 mt-1">
+                    (${parseFloat(doctor.consultationFee).toFixed(2)} USD)
                   </p>
                 </div>
+
+                {/* Available Days */}
+                {doctor.availableDays && doctor.availableDays.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">
+                      Available Days:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {doctor.availableDays.map((day, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                        >
+                          {day}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Time */}
+                {doctor.availableTimeStart && doctor.availableTimeEnd && (
+                  <div className="mt-3">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">
+                      Available Time:
+                    </p>
+                    <div className="bg-blue-50 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium">
+                      <FontAwesomeIcon icon={faClock} className="mr-2" />
+                      {doctor.availableTimeStart} - {doctor.availableTimeEnd}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -375,7 +499,7 @@ const DoctorDetails = () => {
                 />
                 <div>
                   <h2 className="text-2xl font-bold text-[#002A48]">
-                    {doctor.experience_years} Years of Experience
+                    {doctor.experience}
                   </h2>
                   <p className="text-gray-600">
                     Specializing in {doctor.specialization}
@@ -418,13 +542,68 @@ const DoctorDetails = () => {
                 />
                 Select Appointment Date
               </h2>
+
+              {/* Available Days Notice */}
+              {doctor.availableDays && doctor.availableDays.length > 0 && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 font-medium mb-2">
+                    📅 Doctor is available on:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {doctor.availableDays.map((day, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-white text-blue-700 px-3 py-1 rounded-full text-xs font-semibold border border-blue-300"
+                      >
+                        {day}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">
+                    ⚠️ You can only select dates that fall on these days
+                  </p>
+                </div>
+              )}
+
               <input
                 type="date"
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => handleDateChange(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
                 className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#002A48] focus:outline-none text-gray-700 font-semibold"
               />
+
+              {/* Date Error Message */}
+              {dateError && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className="text-red-500 mr-3 mt-1"
+                  />
+                  <div>
+                    <p className="text-red-800 font-semibold text-sm">
+                      {dateError}
+                    </p>
+                    <p className="text-red-600 text-xs mt-1">
+                      Please select a date on:{" "}
+                      {doctor.availableDays?.join(", ")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Date Info */}
+              {selectedDate && !dateError && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-green-800 font-semibold text-sm">
+                    ✅ Date Selected: {selectedDate} ({getDayName(selectedDate)}
+                    )
+                  </p>
+                  <p className="text-green-600 text-xs mt-1">
+                    Now select your preferred time slot below
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Time Slots */}
@@ -436,21 +615,60 @@ const DoctorDetails = () => {
                 />
                 Select Time Slot
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {timeSlots.map((time, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedTime(time)}
-                    className={`p-3 rounded-lg font-semibold transition-all ${
-                      selectedTime === time
-                        ? "bg-[#FFB84C] text-[#002A48] shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
-              </div>
+
+              {!selectedDate || dateError ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <FontAwesomeIcon
+                    icon={faCalendarAlt}
+                    className="text-4xl text-gray-300 mb-3"
+                  />
+                  <p className="text-gray-500 font-medium">
+                    Please select a valid date first
+                  </p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Time slots will appear after date selection
+                  </p>
+                </div>
+              ) : timeSlots.length === 0 ? (
+                <div className="text-center py-8 bg-yellow-50 rounded-lg border-2 border-yellow-200">
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className="text-4xl text-yellow-500 mb-3"
+                  />
+                  <p className="text-yellow-800 font-medium">
+                    No time slots available
+                  </p>
+                  <p className="text-yellow-600 text-sm mt-1">
+                    Please select another date
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Available slots for {getDayName(selectedDate)},{" "}
+                    {selectedDate}
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {timeSlots.map((time, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedTime(time)}
+                        className={`p-3 rounded-lg font-semibold transition-all ${
+                          selectedTime === time
+                            ? "bg-[#FFB84C] text-[#002A48] shadow-lg ring-2 ring-[#FFB84C] ring-offset-2"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={faClock}
+                          className="mr-2 text-xs"
+                        />
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Booking Summary & Button */}
@@ -462,15 +680,15 @@ const DoctorDetails = () => {
                   <span className="font-semibold">{doctor.name}</span>
                 </p>
                 <p>
-                  <span className="opacity-80">Appointment Date:</span>{" "}
-                  <span className="font-semibold">
-                    {selectedDate || "Not selected"}
-                  </span>
+                  <span className="opacity-80">Specialization:</span>{" "}
+                  <span className="font-semibold">{doctor.specialization}</span>
                 </p>
                 <p>
-                  <span className="opacity-80">Selected Day:</span>{" "}
+                  <span className="opacity-80">Appointment Date:</span>{" "}
                   <span className="font-semibold">
-                    {selectedDay || "Not selected"}
+                    {selectedDate
+                      ? `${selectedDate} (${getDayName(selectedDate)})`
+                      : "Not selected"}
                   </span>
                 </p>
                 <p>
@@ -479,23 +697,32 @@ const DoctorDetails = () => {
                     {selectedTime || "Not selected"}
                   </span>
                 </p>
-                <p>
+                <p className="pt-3 border-t border-white/20">
                   <span className="opacity-80">Consultation Fee:</span>{" "}
                   <span className="font-semibold text-2xl">
-                    {formatBdt(doctor.meeting_fee_bdt)}
+                    {formatBdt(toBDT(doctor.consultationFee))}
+                  </span>
+                  <span className="text-sm opacity-75 ml-2">
+                    (${parseFloat(doctor.consultationFee).toFixed(2)} USD)
                   </span>
                 </p>
               </div>
               {!showPayment ? (
                 <button
                   onClick={handleBookAppointment}
-                  disabled={isProcessing}
-                  className={`w-full bg-[#FFB84C] text-[#002A48] py-4 rounded-xl font-bold text-lg hover:bg-white transition-all shadow-lg hover:shadow-xl ${
-                    isProcessing ? "opacity-50 cursor-not-allowed" : ""
+                  disabled={
+                    isProcessing || !selectedDate || !selectedTime || dateError
+                  }
+                  className={`w-full bg-[#FFB84C] text-[#002A48] py-4 rounded-xl font-bold text-lg transition-all shadow-lg ${
+                    isProcessing || !selectedDate || !selectedTime || dateError
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-white hover:shadow-xl"
                   }`}
                 >
                   {isProcessing
                     ? "Preparing Payment..."
+                    : !selectedDate || !selectedTime
+                    ? "Select Date & Time First"
                     : "Continue to Payment"}
                 </button>
               ) : (
