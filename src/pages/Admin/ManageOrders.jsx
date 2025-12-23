@@ -13,6 +13,8 @@ import {
   faHourglassHalf,
   faShippingFast,
   faBan,
+  faChevronDown,
+  faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
 
 const ManageOrders = () => {
@@ -20,6 +22,7 @@ const ManageOrders = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [expandedOrders, setExpandedOrders] = useState(new Set());
 
   useEffect(() => {
     fetchOrders();
@@ -69,6 +72,18 @@ const ManageOrders = () => {
       console.error("Error updating order status:", error);
       alert("Failed to update order status");
     }
+  };
+
+  const toggleOrderExpansion = (orderId) => {
+    setExpandedOrders((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -269,6 +284,9 @@ const ManageOrders = () => {
                     Date
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                    Items
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
                     Total
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
@@ -281,150 +299,387 @@ const ManageOrders = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredOrders.map((order, index) => (
-                  <tr
-                    key={order._id}
-                    className={`hover:bg-blue-50 transition-colors ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
-                  >
-                    <td className="px-6 py-4 font-bold text-[#002A48]">
-                      <div className="flex items-center">
-                        <FontAwesomeIcon
-                          icon={faShoppingBag}
-                          className="mr-2 text-[#FFB84C]"
-                        />
-                        #
-                        {order.orderId ||
-                          (order._id ? String(order._id).slice(-8) : "—")}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-gray-900 font-semibold">
-                          {order.billingDetails?.fullName ||
-                            order.customerName ||
-                            order.userEmail?.split("@")[0] ||
-                            "Unknown"}
-                        </span>
-                        <span className="text-gray-500 text-xs">
-                          {order.userEmail}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {new Date(order.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-green-600">
-                      ${order.totalUSD?.toFixed(2) || "0.00"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold shadow-md ${
-                          order.status === "delivered"
-                            ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
-                            : order.status === "cancelled"
-                            ? "bg-gradient-to-r from-red-400 to-red-600 text-white"
-                            : order.status === "shipped"
-                            ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white"
-                            : order.status === "processing"
-                            ? "bg-gradient-to-r from-purple-400 to-purple-600 text-white"
-                            : "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
-                        }`}
-                      >
-                        <FontAwesomeIcon
-                          icon={getStatusIcon(order.status || "pending")}
-                          className="mr-2"
-                        />
-                        {order.status?.toUpperCase() || "PENDING"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2 justify-center items-center flex-wrap">
-                        {order.status !== "delivered" &&
-                        order.status !== "cancelled" ? (
-                          <>
-                            {(!order.status || order.status === "pending") && (
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(order._id, "processing")
-                                }
-                                className="group relative px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                                title="Start Processing"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faBox}
-                                  className="mr-1"
-                                />
-                                Process
-                              </button>
-                            )}
-                            {order.status === "processing" && (
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(order._id, "shipped")
-                                }
-                                className="group relative px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                                title="Mark as Shipped"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faTruck}
-                                  className="mr-1"
-                                />
-                                Ship
-                              </button>
-                            )}
-                            {(order.status === "shipped" ||
-                              order.status === "processing") && (
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(order._id, "delivered")
-                                }
-                                className="group relative px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                                title="Mark as Delivered"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faCheck}
-                                  className="mr-1"
-                                />
-                                Deliver
-                              </button>
-                            )}
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(order._id, "cancelled")
-                              }
-                              className="group relative px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                              title="Cancel Order"
-                            >
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                                className="mr-1"
-                              />
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <span className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-semibold">
+                  <React.Fragment key={order._id}>
+                    <tr
+                      className={`hover:bg-blue-50 transition-colors ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      }`}
+                    >
+                      <td className="px-6 py-4 font-bold text-[#002A48]">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => toggleOrderExpansion(order._id)}
+                            className="mr-2 text-[#FFB84C] hover:text-[#FF9500] transition-colors"
+                            title="View Products"
+                          >
                             <FontAwesomeIcon
                               icon={
-                                order.status === "delivered"
-                                  ? faCheckCircle
-                                  : faBan
+                                expandedOrders.has(order._id)
+                                  ? faChevronUp
+                                  : faChevronDown
                               }
-                              className="mr-2"
+                              className="text-sm"
                             />
-                            {order.status === "delivered"
-                              ? "Completed"
-                              : "Cancelled"}
+                          </button>
+                          <FontAwesomeIcon
+                            icon={faShoppingBag}
+                            className="mr-2 text-[#FFB84C]"
+                          />
+                          #
+                          {order.orderId ||
+                            (order._id ? String(order._id).slice(-8) : "—")}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 font-semibold">
+                            {order.billingDetails?.fullName ||
+                              order.customerName ||
+                              order.userEmail?.split("@")[0] ||
+                              "Unknown"}
                           </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                          <span className="text-gray-500 text-xs">
+                            {order.userEmail}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {new Date(order.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col space-y-1">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 w-fit">
+                            {order.items?.length || 0} item(s)
+                          </span>
+                          {order.items && order.items.length > 0 && (
+                            <div className="text-xs text-gray-600 mt-1">
+                              {order.items.slice(0, 2).map((item, idx) => (
+                                <div key={idx} className="truncate max-w-xs">
+                                  • {item.productName || "Unnamed Product"}
+                                </div>
+                              ))}
+                              {order.items.length > 2 && (
+                                <div className="text-gray-500 italic">
+                                  +{order.items.length - 2} more...
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-green-600">
+                        ${order.totalUSD?.toFixed(2) || "0.00"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold shadow-md ${
+                            order.status === "delivered"
+                              ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
+                              : order.status === "cancelled"
+                              ? "bg-gradient-to-r from-red-400 to-red-600 text-white"
+                              : order.status === "shipped"
+                              ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white"
+                              : order.status === "processing"
+                              ? "bg-gradient-to-r from-purple-400 to-purple-600 text-white"
+                              : "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
+                          }`}
+                        >
+                          <FontAwesomeIcon
+                            icon={getStatusIcon(order.status || "pending")}
+                            className="mr-2"
+                          />
+                          {order.status?.toUpperCase() || "PENDING"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center items-center flex-wrap">
+                          {order.status !== "delivered" &&
+                          order.status !== "cancelled" ? (
+                            <>
+                              {(!order.status ||
+                                order.status === "pending") && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order._id, "processing")
+                                  }
+                                  className="group relative px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                  title="Start Processing"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faBox}
+                                    className="mr-1"
+                                  />
+                                  Process
+                                </button>
+                              )}
+                              {order.status === "processing" && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order._id, "shipped")
+                                  }
+                                  className="group relative px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                  title="Mark as Shipped"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faTruck}
+                                    className="mr-1"
+                                  />
+                                  Ship
+                                </button>
+                              )}
+                              {(order.status === "shipped" ||
+                                order.status === "processing") && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusUpdate(order._id, "delivered")
+                                  }
+                                  className="group relative px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                  title="Mark as Delivered"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faCheck}
+                                    className="mr-1"
+                                  />
+                                  Deliver
+                                </button>
+                              )}
+                              <button
+                                onClick={() =>
+                                  handleStatusUpdate(order._id, "cancelled")
+                                }
+                                className="group relative px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                title="Cancel Order"
+                              >
+                                <FontAwesomeIcon
+                                  icon={faTimes}
+                                  className="mr-1"
+                                />
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <span className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-semibold">
+                              <FontAwesomeIcon
+                                icon={
+                                  order.status === "delivered"
+                                    ? faCheckCircle
+                                    : faBan
+                                }
+                                className="mr-2"
+                              />
+                              {order.status === "delivered"
+                                ? "Completed"
+                                : "Cancelled"}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Expanded Product Details Row */}
+                    {expandedOrders.has(order._id) && (
+                      <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <td colSpan="7" className="px-6 py-6">
+                          <div className="bg-white rounded-lg shadow-inner p-6">
+                            <h3 className="text-lg font-bold text-[#002A48] mb-4 flex items-center">
+                              <FontAwesomeIcon
+                                icon={faBox}
+                                className="mr-2 text-[#FFB84C]"
+                              />
+                              Order Products
+                            </h3>
+
+                            {order.items && order.items.length > 0 ? (
+                              <div className="space-y-4">
+                                {/* Desktop View - Table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                  <table className="w-full border-collapse">
+                                    <thead>
+                                      <tr className="border-b-2 border-gray-200 bg-gray-50">
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                          Product
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                          Quantity
+                                        </th>
+                                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                                          Price (BDT)
+                                        </th>
+                                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                                          Subtotal (BDT)
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                      {order.items.map((item, idx) => (
+                                        <tr
+                                          key={idx}
+                                          className="hover:bg-gray-50 transition-colors"
+                                        >
+                                          <td className="px-4 py-4">
+                                            <div className="flex items-center space-x-4">
+                                              {item.productImage ? (
+                                                <img
+                                                  src={item.productImage}
+                                                  alt={
+                                                    item.productName ||
+                                                    "Product"
+                                                  }
+                                                  className="w-16 h-16 object-cover rounded-lg shadow-md border border-gray-200"
+                                                  onError={(e) => {
+                                                    e.target.src =
+                                                      "https://via.placeholder.com/64?text=No+Image";
+                                                  }}
+                                                />
+                                              ) : (
+                                                <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                  <FontAwesomeIcon
+                                                    icon={faBox}
+                                                    className="text-gray-400 text-xl"
+                                                  />
+                                                </div>
+                                              )}
+                                              <div>
+                                                <p className="font-semibold text-gray-900">
+                                                  {item.productName ||
+                                                    "Unnamed Product"}
+                                                </p>
+                                                {item.productId && (
+                                                  <p className="text-xs text-gray-500">
+                                                    ID: {item.productId}
+                                                  </p>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </td>
+                                          <td className="px-4 py-4 text-gray-700 font-medium">
+                                            <span className="inline-flex items-center justify-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                              {item.quantity || 1}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                                            ৳
+                                            {item.priceBDT?.toLocaleString() ||
+                                              "0"}
+                                          </td>
+                                          <td className="px-4 py-4 text-right font-bold text-[#002A48]">
+                                            ৳
+                                            {(
+                                              (item.priceBDT || 0) *
+                                              (item.quantity || 1)
+                                            ).toLocaleString()}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                {/* Mobile View - Cards */}
+                                <div className="md:hidden space-y-3">
+                                  {order.items.map((item, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-sm"
+                                    >
+                                      <div className="flex items-start space-x-3">
+                                        {item.productImage ? (
+                                          <img
+                                            src={item.productImage}
+                                            alt={item.productName || "Product"}
+                                            className="w-20 h-20 object-cover rounded-lg shadow-md border border-gray-200"
+                                            onError={(e) => {
+                                              e.target.src =
+                                                "https://via.placeholder.com/80?text=No+Image";
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <FontAwesomeIcon
+                                              icon={faBox}
+                                              className="text-gray-400 text-2xl"
+                                            />
+                                          </div>
+                                        )}
+                                        <div className="flex-1">
+                                          <h4 className="font-semibold text-gray-900 mb-1">
+                                            {item.productName ||
+                                              "Unnamed Product"}
+                                          </h4>
+                                          {item.productId && (
+                                            <p className="text-xs text-gray-500 mb-2">
+                                              ID: {item.productId}
+                                            </p>
+                                          )}
+                                          <div className="space-y-1 text-sm">
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                Quantity:
+                                              </span>
+                                              <span className="font-semibold text-blue-600">
+                                                {item.quantity || 1}
+                                              </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                Price:
+                                              </span>
+                                              <span className="font-medium text-gray-700">
+                                                ৳
+                                                {item.priceBDT?.toLocaleString() ||
+                                                  "0"}
+                                              </span>
+                                            </div>
+                                            <div className="flex justify-between pt-1 border-t border-gray-200">
+                                              <span className="text-gray-600 font-semibold">
+                                                Subtotal:
+                                              </span>
+                                              <span className="font-bold text-[#002A48]">
+                                                ৳
+                                                {(
+                                                  (item.priceBDT || 0) *
+                                                  (item.quantity || 1)
+                                                ).toLocaleString()}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Order Summary */}
+                                <div className="mt-6 pt-4 border-t-2 border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4">
+                                  <div className="flex justify-between items-center text-lg font-bold text-[#002A48]">
+                                    <span>Order Total:</span>
+                                    <span className="text-green-600">
+                                      ৳{order.totalBDT?.toLocaleString() || "0"}{" "}
+                                      (${order.totalUSD?.toFixed(2) || "0.00"})
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-8">
+                                <FontAwesomeIcon
+                                  icon={faBox}
+                                  className="text-4xl text-gray-300 mb-3"
+                                />
+                                <p className="text-gray-500">
+                                  No items found in this order
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
