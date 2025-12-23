@@ -49,7 +49,6 @@ const Login = () => {
           navigate(from, { replace: true });
         }
       } catch (userError) {
-        // If can't fetch user data, use default redirect
         console.error("Error fetching user data:", userError);
         navigate(from, { replace: true });
       }
